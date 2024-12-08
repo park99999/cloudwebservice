@@ -38,7 +38,7 @@
             try {
                 const response = await fetch(lambdaUrl);
                 if (response.ok) {
-                    const htmlContent = await response.text();
+                    const htmlContent = await response.body;
                     document.getElementById('ejsContent').innerHTML = htmlContent;
                 } else {
                     document.getElementById('ejsContent').innerHTML = `<p>오류가 발생했습니다: ${response.status}</p>`;
