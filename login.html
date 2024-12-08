@@ -3,52 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lambda 함수로 렌더링된 EJS</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f4f8;
-            color: #333;
-            text-align: center;
-            padding: 50px;
-        }
-        h1 {
-            color: #2c3e50;
-        }
-        .content {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            text-align: left;
-        }
-    </style>
+    <title>로그인 완료</title>
+    <script src="https://cdn.jsdelivr.net/npm/aws-amplify@4.3.9/dist/aws-amplify.min.js"></script>
 </head>
 <body>
-    <h1>Lambda 함수로 렌더링된 EJS 보기</h1>
-    <div class="content" id="ejsContent">
-        <p>잠시만 기다려 주세요...</p>
+    <h1>로그인 완료</h1>
+    
+    <!-- 로그인된 사용자 정보 표시 -->
+    <div id="user-info">
+        <p><strong>사용자 이름:</strong> <span id="username"></span></p>
+        <p><strong>이메일:</strong> <span id="email"></span></p>
+        <p><strong>사용자 풀 ID:</strong> <span id="user-pool-id"></span></p>
     </div>
 
+    <!-- 로그아웃 버튼 -->
+    <button id="logout-btn">로그아웃</button>
+
     <script>
-        const lambdaUrl = "https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/login";
-
-        async function fetchRenderedEJS() {
-            try {
-                const response = await fetch(lambdaUrl);
-                if (response.ok) {
-                    const htmlContent = await response.body;
-                    document.getElementById('ejsContent').innerHTML = htmlContent;
-                } else {
-                    document.getElementById('ejsContent').innerHTML = `<p>오류가 발생했습니다: ${response.status}</p>`;
-                }
-            } catch (error) {
-                document.getElementById('ejsContent').innerHTML = `<p>오류가 발생했습니다: ${error.message}</p>`;
+        // AWS Amplify 설정
+        Amplify.configure({
+            Auth: {
+                region: process.env.REGION,  // AWS Cognito 리전
+                userPoolId: process.env.USER_POOL_ID,  // 사용자 풀 ID
+                userPoolWebClientId: process.env.CLIENT_ID,  // 웹 클라이언트 ID
             }
-        }
+        });
 
-        fetchRenderedEJS();
+        // 로그인된 사용자 정보 가져오기
+        Auth.currentAuthenticatedUser()
+            .then(user => {
+                console.log('로그인된 사용자:', user);
+                document.getElementById('username').textContent = user.username;
+                document.getElementById('email').textContent = user.attributes.email;
+                document.getElementById('user-pool-id').textContent = user.pool.userPoolId;
+            })
+            .catch(err => {
+                console.error('로그인되지 않은 사용자:', err);
+                alert('로그인되지 않았습니다. 로그인 페이지로 이동합니다.');
+                window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/login/continue?client_id=${process.env.CLIENT_ID}&redirect_uri=https://main.drpimn3gaf9hu.amplifyapp.com/login.html&response_type=code&scope=email+openid+phone';
+            });
+
+        // 로그아웃 처리
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            Auth.signOut()
+                .then(() => {
+                    console.log('로그아웃 성공');
+                    alert('로그아웃되었습니다.');
+                    window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/logout?client_id=${process.env.CLIENT_ID}&logout_uri=https://main.drpimn3gaf9hu.amplifyapp.com/logout.html';
+                })
+                .catch(err => {
+                    console.error('로그아웃 실패:', err);
+                    alert('로그아웃 실패: ' + err.message);
+                });
+        });
     </script>
 </body>
 </html>
