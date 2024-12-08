@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lambda 함수로 렌더링된 EJS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .content {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lambda 함수로 렌더링된 EJS 보기</h1>
+    <div class="content" id="ejsContent">
+        <p>잠시만 기다려 주세요...</p>
+    </div>
+
+    <script>
+        const lambdaUrl = "https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/login";
+
+        async function fetchRenderedEJS() {
+            try {
+                const response = await fetch(lambdaUrl);
+                if (response.ok) {
+                    const htmlContent = await response.text();
+                    document.getElementById('ejsContent').innerHTML = htmlContent;
+                } else {
+                    document.getElementById('ejsContent').innerHTML = `<p>오류가 발생했습니다: ${response.status}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('ejsContent').innerHTML = `<p>오류가 발생했습니다: ${error.message}</p>`;
+            }
+        }
+
+        fetchRenderedEJS();
+    </script>
+</body>
+</html>
