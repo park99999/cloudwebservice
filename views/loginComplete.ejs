@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWS Amplify 테스트 페이지</title>
+    <title>로그인 완료</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,8 +31,8 @@
     </style>
 </head>
 <body>
-    <h1>안녕하세요!</h1>
-    <p>AWS Amplify를 사용하여 배포된 간단한 HTML 페이지입니다.</p>
-    <a href="https://aws.amazon.com/ko/amplify/" class="button" target="_blank">AWS Amplify 알아보기</a>
+    <h1>로그인 완료</h1>
+    <p>환영합니다, <%= userInfo.name || userInfo.preferred_username || userInfo.email %>님!</p> 
+    <a href="/logout" class="button">로그아웃</a> <!-- 로그아웃 버튼 -->
 </body>
 </html>
