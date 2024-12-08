@@ -19,79 +19,63 @@
     <button id="logout-btn">로그아웃</button>
 
     <script>
-        // Authorization Code를 URL에서 추출
-        const code = new URLSearchParams(window.location.search).get('code');
-        
-        if (!code) {
-            alert('로그인 실패: 인증 코드가 없습니다.');
-            window.location.href = 'login.html';  // 로그인 페이지로 리다이렉션
+        // URL에서 쿼리 파라미터 가져오기
+        function getQueryParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                code: urlParams.get('code'), // code 파라미터
+                redirectUri: urlParams.get('redirectUri') // redirectUri 파라미터 (옵션)
+            };
         }
 
-        // 1. Authorization Code로 Access Token 요청
-        async function exchangeCodeForToken(code) {
-            const params = new URLSearchParams();
-            params.append('grant_type', 'authorization_code');
-            params.append('client_id', '6q9qa6gp5sickhcco2o4v4jups');  // Cognito App Client ID
-            params.append('code', code);
-            params.append('redirect_uri', 'https://main.drpimn3gaf9hu.amplifyapp.com/login.html');  // 동일한 리다이렉트 URI
+        // API 호출하여 사용자 정보 가져오기
+        async function getUserInfo(code, redirectUri) {
+            try {
+                const response = await fetch('https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/login', {
+                    method: 'POST', // 필요한 HTTP 메소드 (예: POST)
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: code, // 쿼리에서 가져온 code
+                        redirectUri: redirectUri // 쿼리에서 가져온 redirectUri
+                    })
+                });
 
-            const response = await fetch('https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/oauth2/token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: params.toString()
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                return data;  // {access_token, id_token, refresh_token, etc.}
-            } else {
-                console.error('Error exchanging code for token:', response);
-                throw new Error('Failed to get token');
-            }
-        }
-
-        // 2. Access Token을 이용해 사용자 정보 요청
-        async function getUserInfo(accessToken) {
-            const response = await fetch('https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/oauth2/userInfo', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
+                if (!response.ok) {
+                    throw new Error('API 호출 실패');
                 }
-            });
 
-            if (response.ok) {
-                const user = await response.json();
-                return user;  // 사용자 정보
-            } else {
-                console.error('Error fetching user info:', response);
-                throw new Error('Failed to fetch user info');
+                const data = await response.json();
+
+                // 사용자 정보 화면에 표시
+                if (data.user) {
+                    document.getElementById('username').textContent = data.user.username || '정보 없음';
+                    document.getElementById('email').textContent = data.user.email || '정보 없음';
+                    document.getElementById('user-pool-id').textContent = data.user.userPoolId || '정보 없음';
+                } else {
+                    document.getElementById('user-info').textContent = '사용자 정보를 가져오는 데 실패했습니다.';
+                }
+            } catch (error) {
+                console.error('에러 발생:', error);
+                document.getElementById('user-info').textContent = '에러 발생: 사용자 정보를 가져올 수 없습니다.';
             }
         }
 
-        // 3. 사용자 정보 처리
-        exchangeCodeForToken(code)
-            .then(data => {
-                const accessToken = data.access_token;
-                
-                // Access Token으로 사용자 정보 가져오기
-                return getUserInfo(accessToken);
-            })
-            .then(user => {
-                console.log('사용자 정보:', user);
-                document.getElementById('username').textContent = user.username || '정보 없음';
-                document.getElementById('email').textContent = user.email || '정보 없음';
-                document.getElementById('user-pool-id').textContent = user.userPoolId || '정보 없음';
-            })
-            .catch(err => {
-                console.error('에러 발생:', err);
-                alert('로그인 정보 가져오기 실패');
-            });
+        // 페이지 로딩 시 쿼리 파라미터에서 code와 redirectUri를 가져와서 사용자 정보 요청
+        window.onload = () => {
+            const { code, redirectUri } = getQueryParams();
+            if (code) {
+                getUserInfo(code, redirectUri);
+            } else {
+                document.getElementById('user-info').textContent = '로그인 정보가 없습니다.';
+            }
+        };
 
-        // 로그아웃 처리
-        document.getElementById('logout-btn').addEventListener('click', function() {
-            window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/logout?client_id=6q9qa6gp5sickhcco2o4v4jups&logout_uri=https://main.drpimn3gaf9hu.amplifyapp.com/logout.html';
+        // 로그아웃 버튼 클릭 시
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            // 로그아웃 처리 (예: 로컬 스토리지 삭제, 세션 종료 등)
+            window.location.href = '/'; // 로그인 화면으로 리다이렉트
         });
     </script>
 </body>
