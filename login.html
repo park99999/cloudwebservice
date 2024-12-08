@@ -21,41 +21,44 @@
 
     <script>
         // AWS Amplify 설정
-        Amplify.configure({
-            Auth: {
-                region: process.env.REGION,  // AWS Cognito 리전
-                userPoolId: process.env.USER_POOL_ID,  // 사용자 풀 ID
-                userPoolWebClientId: process.env.CLIENT_ID,  // 웹 클라이언트 ID
-            }
-        });
-
-        // 로그인된 사용자 정보 가져오기
-        Auth.currentAuthenticatedUser()
-            .then(user => {
-                console.log('로그인된 사용자:', user);
-                document.getElementById('username').textContent = user.username;
-                document.getElementById('email').textContent = user.attributes.email;
-                document.getElementById('user-pool-id').textContent = user.pool.userPoolId;
-            })
-            .catch(err => {
-                console.error('로그인되지 않은 사용자:', err);
-                alert('로그인되지 않았습니다. 로그인 페이지로 이동합니다.');
-                window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/login/continue?client_id=${process.env.CLIENT_ID}&redirect_uri=https://main.drpimn3gaf9hu.amplifyapp.com/login.html&response_type=code&scope=email+openid+phone';
+        window.onload = function(){
+                Amplify.configure({
+                Auth: {
+                    region: process.env.REGION,  // AWS Cognito 리전
+                    userPoolId: process.env.USER_POOL_ID,  // 사용자 풀 ID
+                    userPoolWebClientId: process.env.CLIENT_ID,  // 웹 클라이언트 ID
+                }
             });
 
-        // 로그아웃 처리
-        document.getElementById('logout-btn').addEventListener('click', function() {
-            Auth.signOut()
-                .then(() => {
-                    console.log('로그아웃 성공');
-                    alert('로그아웃되었습니다.');
-                    window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/logout?client_id=${process.env.CLIENT_ID}&logout_uri=https://main.drpimn3gaf9hu.amplifyapp.com/logout.html';
+            // 로그인된 사용자 정보 가져오기
+            Auth.currentAuthenticatedUser()
+                .then(user => {
+                    console.log('로그인된 사용자:', user);
+                    document.getElementById('username').textContent = user.username;
+                    document.getElementById('email').textContent = user.attributes.email;
+                    document.getElementById('user-pool-id').textContent = user.pool.userPoolId;
                 })
                 .catch(err => {
-                    console.error('로그아웃 실패:', err);
-                    alert('로그아웃 실패: ' + err.message);
+                    console.error('로그인되지 않은 사용자:', err);
+                    alert('로그인되지 않았습니다. 로그인 페이지로 이동합니다.');
+                    window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/login/continue?client_id=${process.env.CLIENT_ID}&redirect_uri=https://main.drpimn3gaf9hu.amplifyapp.com/login.html&response_type=code&scope=email+openid+phone';
                 });
-        });
+
+            // 로그아웃 처리
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                Auth.signOut()
+                    .then(() => {
+                        console.log('로그아웃 성공');
+                        alert('로그아웃되었습니다.');
+                        window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/logout?client_id=${process.env.CLIENT_ID}&logout_uri=https://main.drpimn3gaf9hu.amplifyapp.com/logout.html';
+                    })
+                    .catch(err => {
+                        console.error('로그아웃 실패:', err);
+                        alert('로그아웃 실패: ' + err.message);
+                    });
+            });
+        }
+        
     </script>
 </body>
 </html>
