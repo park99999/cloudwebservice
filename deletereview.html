@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리뷰 삭제</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>리뷰 삭제</h1>
+        <form id="deleteForm">
+            <div class="input-group">
+                <label for="reviewId">리뷰 ID</label>
+                <input type="text" id="reviewId" name="review_id" placeholder="리뷰 ID를 입력하세요" required>
+            </div>
+            <input type="submit" value="리뷰 삭제">
+        </form>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // 폼 제출 시 이벤트 처리
+        document.getElementById('deleteForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            // 입력값 가져오기
+            const reviewId = document.getElementById('reviewId').value;
+
+            // API URL (여기서는 가상의 URL로 설정)
+            const apiUrl = 'https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/my/review'; // Lambda API URL로 바꾸세요
+
+            // Bearer Token 예시 (실제로는 로그인 후 가져온 토큰을 사용해야 합니다)
+            const token = localStorage.getItem('accessToken'); // 실제 Bearer Token으로 대체하세요
+
+            try {
+                // API 호출
+                const response = await fetch(apiUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ review_id: reviewId })
+                });
+
+                const result = await response.json();
+
+                // 결과 출력
+                const resultElement = document.getElementById('result');
+                if (response.status === 200) {
+                    resultElement.className = 'result success';
+                    resultElement.innerText = result.message;
+                } else {
+                    resultElement.className = 'result error';
+                    resultElement.innerText = result.message;
+                }
+                resultElement.style.display = 'block';
+
+            } catch (error) {
+                const resultElement = document.getElementById('result');
+                resultElement.className = 'result error';
+                resultElement.innerText = '서버에 연결할 수 없습니다. 다시 시도해 주세요.';
+                resultElement.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
