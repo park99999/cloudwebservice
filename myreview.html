@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lambda API Response Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>사용자 리뷰 조회</h1>
+    <button id="fetchDataBtn">리뷰 가져오기</button>
+    <div id="message"></div>
+    <table id="reviewsTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>리뷰 ID</th>
+                <th>장소 ID</th>
+                <th>장소 유형</th>
+                <th>장소 이름</th>
+                <th>리뷰 내용</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        document.getElementById('fetchDataBtn').addEventListener('click', async () => {
+            const messageDiv = document.getElementById('message');
+            const reviewsTable = document.getElementById('reviewsTable');
+            const reviewsTableBody = reviewsTable.querySelector('tbody');
+
+            messageDiv.textContent = '';
+            reviewsTable.style.display = 'none';
+            reviewsTableBody.innerHTML = '';
+
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                messageDiv.textContent = '로컬 저장소에 토큰이 없습니다.';
+                messageDiv.className = 'error';
+                return;
+            }
+
+            try {
+                const response = await fetch('https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/my/review', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`서버 응답 에러: ${response.status}`);
+                }
+
+                const reviews = await response.json();
+
+                if (reviews.length === 0) {
+                    messageDiv.textContent = '조회된 리뷰가 없습니다.';
+                    return;
+                }
+
+                reviews.forEach(review => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${review._id || '정보 없음'}</td>
+                        <td>${review.placeId}</td>
+                        <td>${review.placeType}</td>
+                        <td>${review.name || '정보 없음'}</td>
+                        <td>${review.reviewContent}</td>
+                    `;
+                    reviewsTableBody.appendChild(row);
+                });
+
+                reviewsTable.style.display = 'table';
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                messageDiv.textContent = `오류 발생: ${error.message}`;
+                messageDiv.className = 'error';
+            }
+        });
+    </script>
+</body>
+</html>
