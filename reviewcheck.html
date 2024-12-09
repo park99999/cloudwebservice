@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리뷰 조회</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .reviews {
+            margin-top: 20px;
+        }
+        .review {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .review h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .review p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>리뷰 조회</h1>
+    <form id="reviewForm">
+        <label for="placeId">장소 ID:</label>
+        <input type="text" id="placeId" name="placeId" required>
+        <br><br>
+        <label for="placeType">장소 유형:</label>
+        <input type="text" id="placeType" name="placeType">
+        <br><br>
+        <label for="page">페이지 번호:</label>
+        <input type="number" id="page" name="page" value="1" min="1">
+        <br><br>
+        <button type="submit">리뷰 조회</button>
+    </form>
+
+    <div class="reviews" id="reviews"></div>
+
+    <script>
+        document.getElementById('reviewForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const placeId = document.getElementById('placeId').value;
+            const placeType = document.getElementById('placeType').value;
+            const page = document.getElementById('page').value;
+
+            const apiUrl = `https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/reviews?placeId=${placeId}&placeType=${placeType}&page=${page}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayReviews(data);
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.message || '리뷰 조회 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+                alert('서버와 연결할 수 없습니다. 나중에 다시 시도해 주세요.');
+            }
+        });
+
+        function displayReviews(reviews) {
+            const reviewsContainer = document.getElementById('reviews');
+            reviewsContainer.innerHTML = '';
+
+            if (reviews.length === 0) {
+                reviewsContainer.innerHTML = '<p>해당 장소에 대한 리뷰가 없습니다.</p>';
+                return;
+            }
+
+            reviews.forEach(review => {
+                const reviewElement = document.createElement('div');
+                reviewElement.classList.add('review');
+                reviewElement.innerHTML = `
+                    <h3>${review._id}</h3>
+                    <p>placeId: ${review.placeId}</p>
+                    <p>placeType: ${review.placeType}</p>
+                    <p>reviewContent: ${review.reviewContent}</p>
+                    <p>UserId: ${review.userId}</p>
+                `;
+                reviewsContainer.appendChild(reviewElement);
+            });
+        }
+    </script>
+</body>
+</html>

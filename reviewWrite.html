@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit a Review</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, textarea, button {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Submit a Review</h1>
+    <form id="reviewForm">
+        <label for="placeId">Place ID:</label>
+        <input type="text" id="placeId" name="placeId" required>
+
+        <label for="placeType">Place Type:</label>
+        <input type="text" id="placeType" name="placeType" required>
+
+        <label for="reviewContent">Review Content:</label>
+        <textarea id="reviewContent" name="reviewContent" rows="5" required></textarea>
+
+        <button type="submit">Submit Review</button>
+    </form>
+
+    <h2>Response</h2>
+    <pre id="responseOutput">Response will appear here...</pre>
+
+    <script>
+        document.getElementById('reviewForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const placeId = document.getElementById('placeId').value;
+            const placeType = document.getElementById('placeType').value;
+            const reviewContent = document.getElementById('reviewContent').value;
+
+            // LocalStorage에서 Authorization Token 가져오기
+            const authToken = localStorage.getItem('accessToken');
+            if (!authToken) {
+                document.getElementById('responseOutput').textContent = 'Error: Authorization token not found in localStorage.';
+                return;
+            }
+
+            const requestBody = {
+                placeId,
+                placeType,
+                reviewContent,
+            };
+            const apiUrl = `https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/reviews`;
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify(requestBody),
+                });
+
+                const result = await response.json();
+
+                document.getElementById('responseOutput').textContent = JSON.stringify(result, null, 4);
+            } catch (error) {
+                document.getElementById('responseOutput').textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
