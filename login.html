@@ -32,7 +32,7 @@
         async function getUserInfo(code, redirectUri) {
             try {
                 const response = await fetch('https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/login', {
-                    method: 'POST', // 필요한 HTTP 메소드 (예: POST)
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -53,6 +53,12 @@
                     document.getElementById('username').textContent = data.user.username || '정보 없음';
                     document.getElementById('email').textContent = data.user.email || '정보 없음';
                     document.getElementById('user-pool-id').textContent = data.user.userPoolId || '정보 없음';
+
+                    // accessToken 저장
+                    if (data.accessToken) {
+                        localStorage.setItem('accessToken', data.accessToken); // 로컬 스토리지에 저장
+                        console.log('AccessToken 저장 완료:', data.accessToken);
+                    }
                 } else {
                     document.getElementById('user-info').textContent = '사용자 정보를 가져오는 데 실패했습니다.';
                 }
@@ -74,7 +80,9 @@
 
         // 로그아웃 버튼 클릭 시
         document.getElementById('logout-btn').addEventListener('click', () => {
-            // 로그아웃 처리 (예: 로컬 스토리지 삭제, 세션 종료 등)
+            // 로그아웃 처리
+            localStorage.removeItem('accessToken'); // 로컬 스토리지에서 AccessToken 삭제
+            console.log('AccessToken 삭제 완료');
             window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/logout?client_id=6q9qa6gp5sickhcco2o4v4jups&logout_uri=https://main.drpimn3gaf9hu.amplifyapp.com'; // 로그인 화면으로 리다이렉트
         });
     </script>
