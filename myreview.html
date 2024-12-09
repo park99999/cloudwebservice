@@ -28,6 +28,12 @@
         .error {
             color: red;
         }
+        .no-data {
+            margin-top: 20px;
+            color: #555;
+            text-align: center;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -46,16 +52,19 @@
         </thead>
         <tbody></tbody>
     </table>
+    <div id="noDataMessage" class="no-data" style="display: none;">내가 쓴 리뷰가 없습니다.</div>
 
     <script>
         document.getElementById('fetchDataBtn').addEventListener('click', async () => {
             const messageDiv = document.getElementById('message');
             const reviewsTable = document.getElementById('reviewsTable');
             const reviewsTableBody = reviewsTable.querySelector('tbody');
+            const noDataMessage = document.getElementById('noDataMessage');
 
             messageDiv.textContent = '';
             reviewsTable.style.display = 'none';
             reviewsTableBody.innerHTML = '';
+            noDataMessage.style.display = 'none';
 
             const token = localStorage.getItem('accessToken');
             if (!token) {
@@ -80,7 +89,7 @@
                 const reviews = await response.json();
 
                 if (reviews.length === 0) {
-                    messageDiv.textContent = '조회된 리뷰가 없습니다.';
+                    noDataMessage.style.display = 'block';
                     return;
                 }
 
