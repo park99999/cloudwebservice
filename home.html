@@ -48,6 +48,7 @@
         <button id="busStopBtn">버스 정류소 위치 조회</button>
         <button id="evStationBtn">전기차 충전소 위치 조회</button>
         <button id="bikeRentalBtn">자전거 대여소 위치 조회</button>
+        <button id="myReviewBtn">내가 쓴 리뷰 조회</button>
     </div>
     <!-- 지도 표시 -->
     <div id="map"></div>
@@ -182,7 +183,9 @@
         document.getElementById('busStopBtn').addEventListener('click', () => fetchLocations('busStops'));
         document.getElementById('evStationBtn').addEventListener('click', () => fetchLocations('evStations'));
         document.getElementById('bikeRentalBtn').addEventListener('click', () => fetchLocations('bikeRentals'));
-
+        document.getElementById('myReviewBtn').addEventListener('click', () => {
+            window.location.href = '/myreview.html';
+        });
         getCurrentLocation();
     </script>
 </body>
