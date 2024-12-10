@@ -190,7 +190,10 @@ function displayResults(locations, type) {
 }
 
 function goToReview(placeId, placeType, name) {
-    window.location.href = `review.html?placeId=${placeId}&placeType=${placeType}&page=1`;
+    localStorage.setItem('placeId', placeId);
+    localStorage.setItem('placeType', placeType);
+    localStorage.setItem('locationName', name);
+    window.location.href = 'review.html';
 }
 
 document.getElementById('busStopBtn').addEventListener('click', () => fetchLocations('busStops'));
