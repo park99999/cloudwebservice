@@ -141,19 +141,19 @@
                     item.innerHTML = `
                         <h4>${type}</h4>
                         <p>${location.station_name || '이름 없음'}</p>
-                        <button onclick="goToReview('${location.place_id}', '${location.station_name}')">리뷰 보기</button>
+                        <button onclick="goToReview('${location.place_id}', 1,'${location.station_name}')">리뷰 보기</button>
                     `;
                 } else if (type === '버스 정류소') {
                     item.innerHTML = `
                         <h4>${type}</h4>
                         <p>${location.name || '이름 없음'}</p>
-                        <button onclick="goToReview('${location.place_id}', '${location.name}')">리뷰 보기</button>
+                        <button onclick="goToReview('${location.place_id}', 2,'${location.name}')">리뷰 보기</button>
                     `;
                 } else if (type === '전기차 충전소') {
                     item.innerHTML = `
                         <h4>${type}</h4>
                         <p>${location.station_name || '이름 없음'}</p>
-                        <button onclick="goToReview('${location.place_id}', '${location.station_name}')">리뷰 보기</button>
+                        <button onclick="goToReview('${location.place_id}', 3,'${location.station_name}')">리뷰 보기</button>
                     `;
                 }
 
@@ -175,9 +175,8 @@
             });
         }
 
-        function goToReview(placeId, name) {
-            const url = `/reviewwrite.html?placeId=${placeId}&name=${encodeURIComponent(name)}`;
-            window.location.href = url;
+        function goToReview(placeId,placeType ,name) {
+            window.location.href = `review.html?placeId=${placeId}&placeType=${placeType}&locationName=${encodeURIComponent(name)}`;
         }
 
         document.getElementById('busStopBtn').addEventListener('click', () => fetchLocations('busStops'));
