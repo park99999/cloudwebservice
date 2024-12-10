@@ -1,96 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit a Review</title>
+    <title>리뷰 작성</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-        input, textarea, button {
-            width: 100%;
+        h1 {
+            font-size: 24px;
             margin-bottom: 20px;
         }
-        button {
+        textarea {
+            width: 90%;
+            max-width: 600px;
+            height: 200px;
+            padding: 10px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+        .submit-button {
+            padding: 10px 20px;
+            font-size: 16px;
             background-color: #007BFF;
             color: white;
-            padding: 10px;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
-        button:hover {
+        .submit-button:hover {
             background-color: #0056b3;
         }
-        pre {
-            background: #f4f4f4;
-            padding: 10px;
-            border: 1px solid #ddd;
-            overflow-x: auto;
+        .message {
+            margin-top: 20px;
+            font-size: 16px;
+            color: red;
         }
     </style>
 </head>
 <body>
-    <h1>Submit a Review</h1>
-    <form id="reviewForm">
-        <label for="placeId">Place ID:</label>
-        <input type="text" id="placeId" name="placeId" required>
-
-        <label for="placeType">Place Type:</label>
-        <input type="text" id="placeType" name="placeType" required>
-
-        <label for="reviewContent">Review Content:</label>
-        <textarea id="reviewContent" name="reviewContent" rows="5" required></textarea>
-
-        <button type="submit">Submit Review</button>
-    </form>
-
-    <h2>Response</h2>
-    <pre id="responseOutput">Response will appear here...</pre>
+    <h1>리뷰</h1>
+    <textarea id="reviewContent" placeholder="여기에 리뷰를 작성하세요."></textarea>
+    <button class="submit-button" onclick="submitReview()">제출하기</button>
+    <div id="message" class="message"></div>
 
     <script>
-        document.getElementById('reviewForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
+        async function submitReview() {
+            const reviewContent = document.getElementById('reviewContent').value.trim();
+            const messageDiv = document.getElementById('message');
 
-            const placeId = document.getElementById('placeId').value;
-            const placeType = document.getElementById('placeType').value;
-            const reviewContent = document.getElementById('reviewContent').value;
-
-            // LocalStorage에서 Authorization Token 가져오기
-            const authToken = localStorage.getItem('accessToken');
-            if (!authToken) {
-                document.getElementById('responseOutput').textContent = 'Error: Authorization token not found in localStorage.';
+            if (!reviewContent) {
+                messageDiv.textContent = '리뷰 내용을 입력해주세요.';
                 return;
             }
 
-            const requestBody = {
-                placeId,
-                placeType,
-                reviewContent,
+            // 로컬 스토리지에서 placeId와 placeType 가져오기
+            const placeId = localStorage.getItem('placeId');
+            const placeType = localStorage.getItem('placeType');
+
+            if (!placeId || !placeType) {
+                messageDiv.textContent = '장소 정보가 없습니다.';
+                return;
+            }
+
+            // 요청에 필요한 데이터 구성
+            const data = {
+                placeId: parseInt(placeId),
+                placeType: parseInt(placeType),
+                reviewContent: reviewContent,
+                dbName: 'test',              // 고정 값
+                collectionName: 'reviews'    // 고정 값
             };
-            const apiUrl = `https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/reviews`;
+
             try {
-                const response = await fetch(apiUrl, {
+                // 토큰 가져오기 (필요하다면)
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    throw new Error('인증 토큰이 없습니다.');
+                }
+
+                const response = await fetch('https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/reviews', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`,
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(requestBody),
+                    body: JSON.stringify(data)
                 });
 
-                const result = await response.json();
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '리뷰 제출에 실패했습니다.');
+                }
 
-                document.getElementById('responseOutput').textContent = JSON.stringify(result, null, 4);
+                // 성공 시 메시지 표시 후 이동
+                messageDiv.style.color = 'green';
+                messageDiv.textContent = '리뷰가 성공적으로 제출되었습니다.';
+                setTimeout(() => {
+                    window.location.href = 'review.html'; // 리뷰 화면으로 이동
+                }, 1000); // 1초 후 이동
             } catch (error) {
-                document.getElementById('responseOutput').textContent = `Error: ${error.message}`;
+                console.error('리뷰 제출 중 오류 발생:', error);
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = `오류 발생: ${error.message}`;
             }
-        });
+        }
     </script>
 </body>
 </html>
