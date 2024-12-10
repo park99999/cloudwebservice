@@ -32,9 +32,6 @@
     <!-- 지도 표시 -->
     <div id="map"></div>
 
-    <!-- 버튼 그룹 -->
-    
-
     <!-- 조회 결과 -->
     <div id="searchResult">
         <h3>조회 결과</h3>
@@ -49,6 +46,8 @@
     <script>
         // 지도 생성
         let map;
+        let currentLatitude, currentLongitude;
+
         function initializeMap(latitude, longitude) {
             var mapContainer = document.getElementById('map'); // 지도를 표시할 div
             var mapOption = {
@@ -65,36 +64,60 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const { latitude, longitude } = position.coords;
-                        initializeMap(latitude, longitude);
+                        currentLatitude = position.coords.latitude;
+                        currentLongitude = position.coords.longitude;
+                        initializeMap(currentLatitude, currentLongitude);
+                        // 페이지 로딩 시 기본 데이터 로드
+                        fetchLocations('all');
                     },
                     (error) => {
                         console.error('위치 정보를 가져올 수 없습니다.', error);
                         // 기본 위치 설정 (예: 서울 중심)
-                        initializeMap(37.5665, 126.9780);
+                        currentLatitude = 37.5665;
+                        currentLongitude = 126.9780;
+                        initializeMap(currentLatitude, currentLongitude);
+                        // 기본 데이터 로드
+                        fetchLocations('all');
                     }
                 );
             } else {
                 console.error('브라우저가 위치 정보를 지원하지 않습니다.');
                 // 기본 위치 설정 (예: 서울 중심)
-                initializeMap(37.5665, 126.9780);
+                currentLatitude = 37.5665;
+                currentLongitude = 126.9780;
+                initializeMap(currentLatitude, currentLongitude);
+                // 기본 데이터 로드
+                fetchLocations('all');
             }
         }
 
         // AWS Lambda 함수 호출
         async function fetchLocations(type) {
             try {
-                const response = await fetch(`https://YOUR_API_GATEWAY_ENDPOINT/${type}`, {
-                    method: 'GET',
+                const response = await fetch(`https://9240rcurj0.execute-api.ap-northeast-2.amazonaws.com/cloudweb-team02/nearest`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        latitude: currentLatitude,
+                        longitude: currentLongitude
+                    })
                 });
                 if (!response.ok) throw new Error('조회 실패');
                 const data = await response.json();
 
                 // 결과 표시
-                displayResults(data);
+                if (type === 'busStops') {
+                    displayResults(data.nearestBusStops);
+                } else if (type === 'evStations') {
+                    displayResults(data.nearestChargers);
+                } else if (type === 'bikeRentals') {
+                    displayResults(data.nearestBikeStations);
+                } else {
+                    // 전체 데이터 표시 (기본)
+                    displayResults(data.nearestBusStops.concat(data.nearestChargers, data.nearestBikeStations));
+                }
             } catch (error) {
                 console.error('오류 발생:', error);
                 alert('위치 정보를 가져오는 데 실패했습니다.');
@@ -113,11 +136,11 @@
 
             locations.forEach((location) => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${location.name} - ${location.address}`;
+                listItem.textContent = `${location.name || '이름 없음'} - ${location.address || '주소 없음'}`;
                 resultList.appendChild(listItem);
 
                 // 지도에 마커 추가
-                const markerPosition = new kakao.maps.LatLng(location.latitude, location.longitude);
+                const markerPosition = new kakao.maps.LatLng(location.lat, location.lon);
                 const marker = new kakao.maps.Marker({
                     position: markerPosition,
                     map: map
@@ -125,7 +148,7 @@
 
                 // 마커에 정보 창 추가
                 const infoWindow = new kakao.maps.InfoWindow({
-                    content: `<div style="padding:5px;">${location.name}</div>`
+                    content: `<div style="padding:5px;">${location.name || '이름 없음'}</div>`
                 });
 
                 kakao.maps.event.addListener(marker, 'click', () => {
