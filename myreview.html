@@ -28,6 +28,19 @@
         #fetchDataBtn:hover {
             background-color: #0056b3;
         }
+        #homeBtn {
+            float: left;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #homeBtn:hover {
+            background-color: #0056b3;
+        }
         .review-list {
             display: flex;
             flex-direction: column;
@@ -80,7 +93,11 @@
 </head>
 <body>
     <h1>내가 쓴 리뷰</h1>
-    <button id="fetchDataBtn">리뷰 가져오기</button>
+    <div>
+        <button id="homeBtn">Home</button>
+        <button id="fetchDataBtn">리뷰 가져오기</button>
+    </div>
+    
     <div id="message"></div>
     <div id="reviewsList" class="review-list" style="display: none;"></div>
     <div id="noDataMessage" class="no-data" style="display: none;">내가 쓴 리뷰가 없습니다.</div>
@@ -177,6 +194,9 @@
                 messageDiv.className = 'error';
             }
         }
+        document.getElementById('homeBtn').addEventListener('click', () => {
+            window.location.href = '/home.html';
+        });
     </script>
 </body>
 </html>
