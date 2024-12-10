@@ -1,85 +1,7 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="utf-8"/>
-    <style>
-        #map {
-            width: 100%;
-            height: 500px;
-        }
-        
-        .button-group {
-            margin: 10px 0;
-            text-align: center;
-        }
-        .button-group button {
-            background-color: #007BFF;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        #searchResult {
-            margin-top: 20px;
-        }
-        .result-item {
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .result-item h4 {
-            margin: 0 0 5px 0;
-        }
-        .result-item button {
-            margin-top: 5px;
-            padding: 5px 10px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .result-item button:hover {
-            background-color: #0056b3;
-        }
-        #logoutBtn{
-            text-align: left;
-            background-color: #FF7BFF;
-            color: #fff;
-        }
-    </style>
-</head>
-<body>
-    <div>
-        <div class="button-group">
-            <button id="logoutBtn">로그아웃</button>
-            <button id="busStopBtn">버스 정류소 위치 조회</button>
-            <button id="evStationBtn">전기차 충전소 위치 조회</button>
-            <button id="bikeRentalBtn">자전거 대여소 위치 조회</button>
-            <button id="myReviewBtn">내가 쓴 리뷰 조회</button>
-        </div>
-    </div>
-    <!-- 지도 표시 -->
-    <div id="map"></div>
-
-    <!-- 조회 결과 -->
-    <div id="searchResult">
-        <h3>조회 결과</h3>
-        <div id="resultList"></div>
-    </div>
-
-    <!-- 카카오 지도 API -->
-    <script 
-        type="text/javascript" 
-        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0aace081d030d026f82d5e78011f64c5&libraries=services"></script>
-    
-    <script>
-        let map;
+let map;
 let currentLatitude, currentLongitude;
 let markers = []; // 지도 위의 마커를 저장할 배열
+let currentLocationMarker; // 현재 위치 마커
 
 function initializeMap(latitude, longitude) {
     const mapContainer = document.getElementById('map');
@@ -88,6 +10,9 @@ function initializeMap(latitude, longitude) {
         level: 4
     };
     map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 현재 위치 마커 추가
+    addCurrentLocationMarker(latitude, longitude);
 }
 
 function getCurrentLocation() {
@@ -107,6 +32,30 @@ function getCurrentLocation() {
         console.error('브라우저가 위치 정보를 지원하지 않습니다.');
         initializeMap(37.5665, 126.9780);
     }
+}
+
+function addCurrentLocationMarker(latitude, longitude) {
+    // 기존 마커가 있으면 삭제
+    if (currentLocationMarker) {
+        currentLocationMarker.setMap(null);
+    }
+
+    // 현재 위치 마커 생성
+    const markerPosition = new kakao.maps.LatLng(latitude, longitude);
+    currentLocationMarker = new kakao.maps.Marker({
+        position: markerPosition,
+        map: map,
+        image: new kakao.maps.MarkerImage(
+            'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', // 노란색 마커 이미지 URL
+            new kakao.maps.Size(24, 35) // 마커 크기
+        )
+    });
+
+    // 현재 위치 마커 정보창 추가
+    const infoWindow = new kakao.maps.InfoWindow({
+        content: `<div style="padding:5px;">현재 위치</div>`
+    });
+    infoWindow.open(map, currentLocationMarker);
 }
 
 async function fetchLocations(type) {
@@ -215,13 +164,9 @@ document.getElementById('myReviewBtn').addEventListener('click', () => {
     window.location.href = '/myreview.html';
 });
 document.getElementById('logoutBtn').addEventListener('click', () => {
-            // 로그아웃 처리
-            localStorage.removeItem('accessToken'); // 로컬 스토리지에서 AccessToken 삭제
-            console.log('AccessToken 삭제 완료');
-            window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/logout?client_id=6q9qa6gp5sickhcco2o4v4jups&logout_uri=https://main.drpimn3gaf9hu.amplifyapp.com'; // 로그인 화면으로 리다이렉트
-        });
+    // 로그아웃 처리
+    localStorage.removeItem('accessToken'); // 로컬 스토리지에서 AccessToken 삭제
+    console.log('AccessToken 삭제 완료');
+    window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/logout?client_id=6q9qa6gp5sickhcco2o4v4jups&logout_uri=https://main.drpimn3gaf9hu.amplifyapp.com'; // 로그인 화면으로 리다이렉트
+});
 getCurrentLocation();
-
-    </script>
-</body>
-</html>
