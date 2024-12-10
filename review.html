@@ -76,9 +76,10 @@
 
         // API 호출로 리뷰 데이터 가져오기
         async function fetchReviews() {
+            const params = new URLSearchParams(window.location.search);
             const placeId = params.get('placeId');
             const placeType = params.get('placeType');
-            const page = lparams.get('page'); // 기본값 1 설정
+            const page = params.get('page'); // 기본값 1 설정
 
             const reviewsList = document.getElementById('reviewsList');
             const noDataMessage = document.getElementById('noDataMessage');
