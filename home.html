@@ -176,7 +176,7 @@
         }
 
         function goToReview(placeId,placeType ,name) {
-            window.location.href = `review.html?placeId=${placeId}&placeType=${placeType}&locationName=${encodeURIComponent(name)}`;
+            window.location.href = `review.html?placeId=${placeId}&placeType=${placeType}&page=1`;
         }
 
         document.getElementById('busStopBtn').addEventListener('click', () => fetchLocations('busStops'));
