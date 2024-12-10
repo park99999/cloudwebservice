@@ -61,14 +61,27 @@
         .review-button:hover {
             background-color: #0056b3;
         }
+        .homeBtn{
+            margin: 20px 0;
+            padding: 10px 15px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <h1 id="locationTitle"></h1>
     <div id="reviewsList" class="review-list"></div>
     <div id="noDataMessage" class="no-data" style="display: none;">리뷰 정보가 없습니다.</div>
-    <button class="review-button" onclick="window.location.href='reviewWrite.html'">리뷰쓰기</button>
-
+    <div>
+        <button class="review-button" onclick="window.location.href='reviewWrite.html'">리뷰쓰기</button>
+        <button class="homeBtn" onclick="window.location.href='home.html'">뒤로가기</button>
+    </div>
+    
     <script>
         // 위치 이름 설정 (전 화면에서 가져온다고 가정)
         const locationName = localStorage.getItem('locationName') || '위치 이름';
