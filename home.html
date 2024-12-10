@@ -68,6 +68,7 @@
                         currentLongitude = position.coords.longitude;
                         initializeMap(currentLatitude, currentLongitude);
                         // 페이지 로딩 시 기본 데이터 로드
+                        console.error('위치 정보',currentLatitude,currentLongitude)
                         fetchLocations('all');
                     },
                     (error) => {
