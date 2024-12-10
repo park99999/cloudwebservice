@@ -210,7 +210,7 @@ function displayResults(locations, type) {
 
         resultList.appendChild(item);
 
-        const markerPosition = new kakao.maps.LatLng(location.latitude || location.x_coordinate, location.longitude || location.y_coordinate);
+        const markerPosition = new kakao.maps.LatLng(location.latitude || location.y_coordinate, location.longitude || location.x_coordinate);
         const marker = new kakao.maps.Marker({
             position: markerPosition,
             map: map
