@@ -7,15 +7,19 @@
             width: 100%;
             height: 500px;
         }
+        
         .button-group {
             margin: 10px 0;
             text-align: center;
         }
         .button-group button {
-            margin: 5px;
-            padding: 3px 5px;
-            font-size: 14px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
         }
         #searchResult {
             margin-top: 20px;
@@ -41,14 +45,22 @@
         .result-item button:hover {
             background-color: #0056b3;
         }
+        #logoutBtn{
+            text-align: left;
+            background-color: #FF7BFF;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
-    <div class="button-group">
-        <button id="busStopBtn">버스 정류소 위치 조회</button>
-        <button id="evStationBtn">전기차 충전소 위치 조회</button>
-        <button id="bikeRentalBtn">자전거 대여소 위치 조회</button>
-        <button id="myReviewBtn">내가 쓴 리뷰 조회</button>
+    <div>
+        <div class="button-group">
+            <button id="logoutBtn">로그아웃</button>
+            <button id="busStopBtn">버스 정류소 위치 조회</button>
+            <button id="evStationBtn">전기차 충전소 위치 조회</button>
+            <button id="bikeRentalBtn">자전거 대여소 위치 조회</button>
+            <button id="myReviewBtn">내가 쓴 리뷰 조회</button>
+        </div>
     </div>
     <!-- 지도 표시 -->
     <div id="map"></div>
@@ -202,6 +214,12 @@ document.getElementById('bikeRentalBtn').addEventListener('click', () => fetchLo
 document.getElementById('myReviewBtn').addEventListener('click', () => {
     window.location.href = '/myreview.html';
 });
+document.getElementById('logoutBtn').addEventListener('click', () => {
+            // 로그아웃 처리
+            localStorage.removeItem('accessToken'); // 로컬 스토리지에서 AccessToken 삭제
+            console.log('AccessToken 삭제 완료');
+            window.location.href = 'https://ap-northeast-2gjabstzt6.auth.ap-northeast-2.amazoncognito.com/logout?client_id=6q9qa6gp5sickhcco2o4v4jups&logout_uri=https://main.drpimn3gaf9hu.amplifyapp.com'; // 로그인 화면으로 리다이렉트
+        });
 getCurrentLocation();
 
     </script>
